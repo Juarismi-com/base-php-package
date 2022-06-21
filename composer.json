@@ -1,0 +1,35 @@
+{
+    "name": "juarismi/base",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Iván Fretes",
+            "email": "vanfretes@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Juarismi\\Base\\": "src/"
+        },
+        "files" : [
+            "src/Helpers/Date.php",
+            "src/Helpers/Util.php",
+            "src/Helpers/String.php",
+            "src/Helpers/Number.php"
+        ]
+    },
+    "require": {
+        "nesbot/carbon": "^2.41",
+        "tymon/jwt-auth" : "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.4"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Juarismi\\Base\\BaseServiceProvider"
+            ]
+        }
+    }
+}

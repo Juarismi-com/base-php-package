@@ -21,7 +21,7 @@ class ProductoTipoController extends AppController
     public function index(Request $request)
     {
         // Filtros
-        $estado = $request->input('estado','activo');
+        $estado = $request->input('estado',1);
 
         // Order
         $orderType = $request->input('orderBy','asc');
@@ -32,7 +32,6 @@ class ProductoTipoController extends AppController
 
         $tipoList = ProductoTipo::where('estado', $estado)
             ->orderBy($orderBy, $orderType);
-
 
         return $tipoList->paginate($rows);
     }

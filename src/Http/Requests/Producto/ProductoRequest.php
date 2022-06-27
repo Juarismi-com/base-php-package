@@ -38,9 +38,7 @@ class ProductoRequest extends FormRequest
     public function messages(){
         return [
             'nombre.required' => ':attribute es requirido',
-            'precio_compra.required' => ':attribute es requerido',
             'precio_compra.integer' => ':attribute debe ser un numero',
-            'precio_vta.required' => ':attribute es requerido',
             'precio_vta.integer' => ':attribute debe ser un numero',
             'precio_vta2.integer' => ':attribute debe ser un numero',
             'precio_vta3.integer' => ':attribute debe ser un numero',

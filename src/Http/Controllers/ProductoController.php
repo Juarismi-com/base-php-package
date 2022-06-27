@@ -40,12 +40,12 @@ class ProductoController extends AppController
                     ]);
                 });
 
-            $productoList = $query->orderBy('nombre', 'asc')
+            $productoList = $query->orderBy('id', 'desc')
                 ->paginate($rows);
             $productoList->appends(['q' => $q])->links();
 
         } else {
-            $productoList = Producto::orderBy('nombre', 'asc')
+            $productoList = Producto::orderBy('id', 'desc')
                 ->paginate($rows);
         }
         

@@ -13,7 +13,7 @@ class CreateTableComprobanteEmitido extends Migration
      */
     public function up()
     {
-        Schema::create('emp_comprabante_emitido', function (Blueprint $table) {
+        Schema::create('emp_comprobante_emitido', function (Blueprint $table) {
             $table->id();
             $table->integer('sucursal_id')->nullable();
             $table->integer('comprobantetipo_id');
@@ -34,6 +34,6 @@ class CreateTableComprobanteEmitido extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('emp_comprabante_emitido');
+        Schema::dropIfExists('emp_comprobante_emitido');
     }
 }

@@ -14,7 +14,9 @@ class VentaDetalleResource extends JsonResource
      */
     public function toArray($request)
     {
+        return $this;
         return [
+            
             "id" => $this->id,
             "cantidad" => $this->cantidad,
             "precio" => $this->precio,

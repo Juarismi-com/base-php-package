@@ -7,9 +7,9 @@ use App\Http\Controllers\Controller;
 class AppController extends Controller
 {
 	protected function serverError(\Exception $e){
-		$code = $e->getCode() == NULL ? 500 : $e->getCode();
+    $code = 500;
 		return response([ 
-			'message' => $e->getMessage(),
+			'message' => 500,
 			'code' => $code,
 			'raw' => $e
 		], $code);

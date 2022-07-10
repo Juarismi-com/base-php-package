@@ -34,9 +34,7 @@ class VentaResource extends JsonResource
             'updated_at' => $this->updated_at,
 
             'cliente' => $this->cliente,
-            'venta_detalle' => VentaDetalleResource::collection(
-                $this->ventaDetalle
-            ),
+            'venta_detalle' => $this->ventaDetalle,
 
             'sucursal' => $this->sucursal,
 

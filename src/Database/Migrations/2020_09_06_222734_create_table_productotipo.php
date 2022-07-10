@@ -19,6 +19,9 @@ class CreateTableProductotipo extends Migration
             $table->string('codigo', 20)->nullable();
             $table->string('slug')->nullable();
             $table->integer('estado')->default(1);
+
+            // En caso que sea un precio para un producto por defecto.
+            // sino NO le veo otro motivo para haber agregado esto aqui.
             $table->integer('precio')->nullable();
 
             // Si la categoria se encuentra anidada, tiene un tipo superior

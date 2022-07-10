@@ -25,26 +25,28 @@ class VentaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'cliente_id' => [ 
-                'required', 'integer', new ClienteRule
-            ], 
-            'venta_detalle' => 'required|array',
-            'venta_detalle.*.producto_id' => [
-                'required' , 
-                new ProductoRule
-            ],
-            'venta_detalle.*.precio' => 'required|integer',
-            'serie_factura' => 'required',
-            'fecha_venta' => 'required',
-            'condicion_venta' => 'required|in:credito,contado',
-            'sucursal_id' => 'required',
-            'formapago_id' => 'required',
+      return [
+        'cliente_id' => [ 
+          'required', 'integer', new ClienteRule
+        ], 
+        'fecha_venta' => 'required',
+        'condicion_venta' => 'required|in:credito,contado',
+        'formapago_id' => 'required',
+        'estado' => 'nullable|integer',
 
-            // En caso que se emita factura a nombre de otra persona
-            'ruc' => 'nullable|string',
-            'razon_social'=> 'nullable|string'
-        ];
+        // En caso que se emita factura a nombre de otra persona
+        // Registrar los datos de la otra persona en la tabla razon social
+        'ruc' => 'nullable|string',
+        'razon_social'=> 'nullable|string',
+
+        // Venta detalle
+        'venta_detalle' => 'required|array',
+        'venta_detalle.*.producto_id' => [
+          'required' , 
+          new ProductoRule
+        ],
+        'venta_detalle.*.precio' => 'required|integer',
+      ];
     }
 
     protected function prepareForValidation(){
@@ -54,18 +56,16 @@ class VentaRequest extends FormRequest
     }
 
     public function messages(){
-        return [
-            'cliente.required' => ':attribute es requirido',
-            'venta_detalle.required' => ':attribute es requirido',
-            'fecha_venta.required' => ':attribute es requirido',
-            'condicion_venta.required' => ':attribute es requirido',
-            'sucursal_id.required' => ':attribute es requirido',
-            'formapago_id.required' => ':attribute es requirido',
-            'serie_factura.required' => ':attribute es requirido',
+      return [
+        'cliente.required' => ':attribute es requirido',
+        'venta_detalle.required' => ':attribute es requirido',
+        'fecha_venta.required' => ':attribute es requirido',
+        'condicion_venta.required' => ':attribute es requirido',
+        'formapago_id.required' => ':attribute es requirido',
 
-            'condicion_venta.in' => ':attribute es invalido',
+        'condicion_venta.in' => ':attribute es invalido',
 
-            'venta_detalle.*.required' => 'Detalle es requerido',
-        ];
+        'venta_detalle.*.required' => 'Detalle es requerido',
+      ];
     }
 }

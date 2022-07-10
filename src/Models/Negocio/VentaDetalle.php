@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class VentaDetalle extends Model
 {
-    protected $table = 'emp_venta_detalle';
+  protected $table = 'emp_venta_detalle';
 	protected $guarded = array();
 
 	public function venta(){

@@ -4,186 +4,158 @@ namespace Juarismi\Base\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Juarismi\Base\Models\Negocio\ProductoTipo;
-//use Juarismi\Base\Models\Negocio\Imagen;
 //use Juarismi\Base\Http\Resources\Producto\ProductoResource;
 //use Juarismi\Base\Http\Resources\ServicioTipo\ServicioTipoResource;
 use Illuminate\Support\Str;
 
 class ProductoTipoController extends AppController
 {
-    public function __construct(){}
+	public function __construct(){}
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
-    {
-        // Filtros
-        $estado = $request->input('estado',1);
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Http\Response
+	 */
+	public function index(Request $request)
+	{
+		// Filtros
+		$estado = $request->input('estado',1);
 
-        // Order
-        $orderType = $request->input('orderBy','asc');
-        $orderBy = $request->input('orderType','nombre');
+		// Order
+		$orderType = $request->input('orderBy','asc');
+		$orderBy = $request->input('orderType','nombre');
 
-        // Paginacion
-        $rows = $request->input('rows', 20);
+		// Paginacion 
+		$rows = $request->input('rows', 20);
 
-        $tipoList = ProductoTipo::where('estado', $estado)
-            ->orderBy($orderBy, $orderType);
+		$pTipoList = ProductoTipo::where('estado', $estado)
+				->orderBy($orderBy, $orderType);
 
-        return $tipoList->paginate($rows);
-    }
+		return $pTipoList->paginate($rows);
+	}
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        // Valores por defecto
-        /*$codigo = sha1(\Carbon\Carbon::now());
-        $codigo = strtoupper(substr($codigo, 0, 10));
-        $codigo = 'T_SERV-' . $codigo; 
+	/**
+	 * Crea una nueva categoria
+	 *   - Verifica si la misma se encuentra en una activa
+	 * 
+	 * @param  \Illuminate\Http\Request  $request
+	 * @return \Illuminate\Http\Response
+	 */
+	public function store(Request $request){
+		$request->validate([
+				'nombre' => 'required|min:10|max:255',
+		]);
 
-        try {
+		try {
+				$input = $request->all();
+				$parentId = $request->input('parent_id', NULL);
+				
+				// En el caso que la categoria padre este definida
+				if ($parentId){
+					$parentCategory = ProductoTipo::where([
+							'id' => $parentId, 
+							'estado' => 1
+					])->first();
+					
+					if ($parentCategory == NULL)
+							throw new \Exception("Categoria padre no existe", 500);
+				}
+				
+				$input['slug'] = Str::slug($input['nombre'], '-') . '_' . uniqid();
+				$pTipo = ProductoTipo::create($input);
 
-            // Si tiene una categoria, verificar
-            $tipoSuperiorId = $request->input('tipo_superior', NULL);
-            $tipoListSuperior = ServicioTipo::where([
-                                    'id' => $tipoSuperiorId, 
-                                    'estado' => 'activo'
-                                ])->first();
+				return [ 
+					"data" => $pTipo, 
+					"message" => "Tipo de servicio creado correctamente"
+				];
+		} catch(\Exception $e) {
+				return [$e];
+				return response([
+					"data" => NULL,
+					"message" => $e->getMessage()
+				], $e->getCode());
+		}
+	}
+
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function show($id)
+	{   
+		$pTipo = ProductoTipo::findOrFail($id);
+		return $pTipo;
+	}
 
 
-            if ($tipoSuperiorId != NULL && !isset($tipoListSuperior)){
-                return response([
-                    'errors' => [
-                        'Tipo de servicio/Tipo de item no esta definido'
-                    ]
-                ], 500);
-            }
-
+	/**
+	 * Update the specified resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request  $request
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function update(Request $request, $id)
+	{
+		try {
+			$parentId = $request->input('parent_id', NULL);
+			$nombre = $request->input('nombre', NULL);
+			$input = $request->all();
+			$pTipo = ProductoTipo::findOrFail($id);
+      
+			// En el caso que la categoria padre este definida
+    if ($parentId){
+        $parentCategory = ProductoTipo::where([
+            'id' => $parentId, 
+            'estado' => 1
+        ])->first();
         
-            $tipoList = new ServicioTipo;
-            $tipoList->nombre = urldecode($request->input('nombre', ''));
-            $tipoList->descripcion = urldecode($request->input('descrìpcion', ''));
-            $tipoList->imagen = $request->input('imagen', 0);
-            $tipoList->icono = $request->input('icono', 0);
-            $tipoList->codigo = $codigo;
-            $tipoList->se_repite = $request->input('se_repite', 'no');
-            $tipoList->id_publicador = $request->input('id_publicador', NULL);
-            $tipoList->slug = Str::slug($request->input('nombre', ''), '-');
-            $tipoList->tipo_superior = $tipoSuperiorId;
-            $tipoList->save();
-            
-            return [ 
-                "data" => $tipoList, 
-                "message" => "Tipo de servicio creado correctamente"
-            ];
-        } catch (Exception $e) {
-            return response("Server error", 500);
-        }
+        if ($parentCategory == NULL)
+          throw new \Exception("Categoria padre no existe", 500);
+      }
+      
+      // Si se recibe un nuevo nombre, se genera un nuevo slug
+      if ($nombre){
+        $input['slug'] = Str::slug($nombre, '-') . '_' . uniqid();
+      }
+      
+      $pTipo->update($input);
 
-        */
-
-        $_request = $request->only([
-            'nombre',
-            'codigo',
-            'slug',
-            'tiposuperior_id',
-        ]);
-
-
-        return $_request;
-        
+      return [ 
+        "data" => $pTipo, 
+        "message" => "Tipo de servicio creado correctamente"
+      ];
+    } catch(\Exception $e) {
+      return response([
+        "data" => NULL,
+        "message" => $e->getMessage()
+      ], 500);
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {   
-        // $tipoList = ServicioTipo::find($id);
-        // if (!isset($tipoList)) {
-        //     return response([
-        //         "data" => NULL,
-        //         "message" => "Tipo de Servicio no encontrado"
-        //     ], 404);
-        // }
-
-        // return new ServicioTipoResource($tipoList);
-    }
+	}
 
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        
-        // $tipoSuperiorId = $request->input('tipo_superior', NULL);
-        // $tipoList = ServicioTipo::find($id);
-        // if (!isset($tipoList)) {
-        //     return response([
-        //         "data" => NULL,
-        //         "message" => "Tipo no encontrado"
-        //     ], 404);
-        // }
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @todo
+	 * Validar si tiene productos relacionados, no eliminar la categoria
+	 * 
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function destroy($id) {
+		$pTipo = ProductoTipo::findOrFail($id);
 
-        // $tipoList->nombre = urldecode($request->input('nombre', ''));
-        // $tipoList->descripcion = urldecode($request->input('descrìpcion', ''));
-        // $tipoList->imagen = 0;
-        // $tipoList->icono = 0;
-        // $tipoList->se_repite = $request->input(
-        //     'se_repite', $tipoList->se_repite
-        // );
-        // $tipoList->id_publicador = $request->input('id_publicador', NULL);
-        // $tipoList->slug = Str::slug($request->input('nombre', ''), '-');
-        // $tipoList->tipo_superior = $tipoSuperiorId;
-        // $tipoList->save();
+    if ($pTipo->id != 1)
+        throw new \Exception("No puede editarse la categoria", 500);
 
-
-        // return [ 
-        //     "data" => $tipoList, 
-        //     "message" => "Tipo de servicio editado correctamente"
-        // ];
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        // $tipoList = ServicioTipo::find($id);
-        // if (!isset($tipoList)){ 
-        //     return response([
-        //         "data" => NULL,
-        //         "message" => "Tipo no encontrado"
-        //     ], 404);
-        // }
-
-        // $tipoList->estado = 'archivado';
-        // $tipoList->save();
-        // $tipoList->servicios()->update('estado', 'archivado');
-
-        // return [
-        //     "data" => $tipoList,
-        //     "message" => "Tipo de Servicio archivado correctamente"
-        // ];
-    }
+		$pTipo->delete();
+		return [
+				"data" => $pTipo,
+				"message" => "Tipo de Servicio eliminado correctamente"
+		];
+	}
 }

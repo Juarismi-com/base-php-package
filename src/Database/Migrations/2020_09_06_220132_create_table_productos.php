@@ -40,6 +40,12 @@ class CreateTableProductos extends Migration
             $table->string('slug')->nullable();
             
             $table->string('precio_vta')->nullable();
+
+            /**
+             * @todo
+             * Agregar una table precio_vta_producto,
+             * donde agregar a partir de que cantidad y que precio tiene los productos 
+             */
             $table->string('precio_vta2')->nullable();
             $table->string('precio_vta3')->nullable();
             $table->string('precio_vta4')->nullable();

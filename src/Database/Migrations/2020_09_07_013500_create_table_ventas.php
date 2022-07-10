@@ -13,40 +13,40 @@ class CreateTableVentas extends Migration
      */
     public function up()
     {
-        Schema::create('emp_ventas', function (Blueprint $table) {
-            $table->id();
+      Schema::create('emp_ventas', function (Blueprint $table) {
+        $table->id();
 
-            $table->integer('nro_factura')->nullable();
-            $table->string('serie_factura' , 10);
+        $table->integer('nro_comprobante')->nullable();
+        $table->string('serie_factura' , 10)->nullable();
 
-            $table->dateTime('fecha_venta');
-            $table->enum('condicion_venta', ['credito', 'contado']);
-            $table->bigInteger('monto_total')->default(0);
-            $table->bigInteger('impuesto_total')->nullable();
+        $table->dateTime('fecha_venta');
+        $table->enum('condicion_venta', ['credito', 'contado']);
+        $table->bigInteger('monto_total')->default(0);
+        $table->bigInteger('impuesto_total')->nullable();
 
 
-            // Relaciona con el id del usuario
-            $table->integer('vendedor_id')->nullable();
-            $table->integer('cliente_id')->nullable();
-            $table->integer('sucursal_id')->nullable();
-            $table->integer('razonsocial_id')->nullable();
-            $table->integer('comprobantetipo_id')->nullable();
-            
-            $table->string('observacion')->nullable();
-            
-            $table->integer('estado')->default(1);
+        // Relaciona con el id del usuario
+        $table->integer('vendedor_id')->nullable();
+        $table->integer('cliente_id')->nullable();  
+        $table->integer('sucursal_id')->nullable();
+        $table->integer('razonsocial_id')->nullable();
+        $table->integer('comprobantetipo_id')->nullable();
+        
+        $table->string('observacion')->nullable();
+        
+        $table->integer('estado')->default(1);
 
-            // Forma de pago al proveedor
-            // Banco X, Caja, etc, etc -> relacionado a la table compra pago
-            $table->integer('formapago_id');
+        // Forma de pago al proveedor
+        // Banco X, Caja, etc, etc -> relacionado a la table compra pago
+        $table->integer('formapago_id');
 
-            
-            // Empleado asignado
-            $table->integer('atendedor_id')->nullable();
+        
+        // Empleado asignado
+        $table->integer('atendedor_id')->nullable();
 
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        $table->timestamps();
+        $table->softDeletes();
+      });
     }
 
     /**

@@ -11,9 +11,14 @@ use Juarismi\Base\Http\Resources\Venta\VentaBasicResource;
 use Juarismi\Base\Http\Resources\Venta\VentaResource;
 use Juarismi\Base\Http\Requests\Venta\VentaRequest;
 use Juarismi\Base\Models\Negocio\ComprobantePorSucursal;
+use Juarismi\Base\Http\Controllers\AppController;
+use Juarismi\Base\Models\Negocio\Producto;
+use Juarismi\Base\Traits\TComprobanteTipo;
 
 class VentaController extends AppController
 {
+    use TComprobanteTipo;
+
     /**
      * Display a listing of the resource.
      *
@@ -33,19 +38,25 @@ class VentaController extends AppController
         // Pagination
         $rows = $request->input('rows', 20);
 
-        $ventaList = Venta::with(['cliente', 'ventaDetalle']);
+        $ventaList = Venta::with([
+          'cliente', 
+          'ventaDetalle', 
+          'ventaDetalle.producto',
+          'sucursal',
+          'formaPago'
+        ]);
 
         if ($q != NULL){
             $ventaList->whereHas('cliente', function($query) use ($q){
-                    $query->where('nombre', 'like', '%' . $q . '%')
-                        ->orWhere('ci', $q)
-                        ->orWhere('ruc', $q);
-                });
+              $query->where('nombre', 'like', '%' . $q . '%')
+                ->orWhere('ci', $q)
+                ->orWhere('ruc', $q);
+            });
         }
-
-        if ($fechaDesde != NULL &&  $fechaHasta != NULL){
-            $fechaDesde =  date_to_DateString($fechaDesde);
-            $fechaHasta =  date_to_DateString($fechaHasta);
+        
+        if ($fechaDesde != NULL && $fechaHasta != NULL){
+            $fechaDesde = date_to_DateString($fechaDesde);
+            $fechaHasta = date_to_DateString($fechaHasta);
 
             $ventaList = $ventaList->whereBetween('fecha_venta', [
                 $fechaDesde, $fechaHasta
@@ -53,9 +64,9 @@ class VentaController extends AppController
         }
 
         $ventaList = $ventaList->orderBy($orderBy, $orderType)
-            ->paginate($rows);
+                        ->paginate($rows);
 
-        return VentaBasicResource::collection($ventaList);
+        return $ventaList;
     }
 
 
@@ -68,45 +79,59 @@ class VentaController extends AppController
     public function store(VentaRequest $request)
     {
         $input = $request->all();
+        $comprobanteTipoId = $request->input('comprobantetipo_id',3); //Ticket
+        $sucursalId = $request->input('sucursal_id',1); //Ticket
 
+        
+        
         try {
-            DB::beginTransaction();
+          DB::beginTransaction();
+          
+          $comprobante = $this->getLastComprobanteEmitido(
+            $comprobanteTipoId, $sucursalId
+          );
+          $input['nro_comprobante'] = $comprobante->ultimo_nro;
+          
+          // Si el tipo de comprobante es una factura, agrega la serie a la venta
+          if ($comprobanteTipoId == 1){
+            $input['serie_factura'] = $comprobante->serie_comprobante;
+          }
 
-            $venta = Venta::create($input);
+          $venta = Venta::create($input);
 
-            // Se el detalle de la venta
-            $venta_detalle = collect($request->venta_detalle);
-            $venta_detalle->each(function($detalle) use ($venta, $request) {
-                $cantidad = isset($detalle['cantidad']) ?
-                            $detalle['cantidad'] : 1;
+          // Se el detalle de la venta
+          $venta_detalle = collect($request->venta_detalle);
+          $venta_detalle->each(function($detalle) use ($venta, $request) {
+              $cantidad = isset($detalle['cantidad']) ?
+                          $detalle['cantidad'] : 1;
 
-                VentaDetalle::create([
-                    'producto_id' => $detalle['producto_id'],
-                    'precio' => $detalle['precio'],
-                    'precio_defecto' => $detalle['precio'],
-                    'venta_id' => $venta->id,
-                    'cantidad' => $cantidad,
-                    'precio_x_cantidad' => $cantidad * $detalle['precio'],
-                    'atendedor_id' => $request->input('atendedor_id', NULL)
-                ]);
-            });
-            
-            $venta->monto_total = $venta
-                ->ventaDetalle
-                ->sum('precio_x_cantidad');
-            $venta->save();
+              $producto = Producto::findOrFail($detalle['producto_id']);
 
-            // Si la venta es a credito, se ggenera el mismo
-            if ($request->condicion_venta == 'credito'){
-                $this->generar_venta_credito($request, $venta);
-            }
+              VentaDetalle::create([
+                'producto_id' => $detalle['producto_id'],
+                'precio' => $detalle['precio'],
+                'precio_defecto' => $producto->precio_vta,
+                'venta_id' => $venta->id,
+                'cantidad' => $cantidad,
+                'precio_x_cantidad' => $cantidad * $detalle['precio'],
+                'atendedor_id' => $request->input('atendedor_id', NULL)
+              ]);
+          });
+          
+          $venta->monto_total = $venta->ventaDetalle->sum('precio_x_cantidad');
+          $venta->save();
 
-            DB::commit();
+          // Si la venta es a credito, se ggenera el mismo
+          if ($request->condicion_venta == 'credito'){
+              $this->generar_venta_credito($request, $venta);
+          }
 
-            return [
-                'message' => "Se genero la venta correctamente",
-                'data' => $venta
-            ];
+          DB::commit();
+
+          return [
+              'message' => "Se genero la venta correctamente",
+              'data' => $venta
+          ];
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->serverError($e);
@@ -118,13 +143,7 @@ class VentaController extends AppController
      * Genera credito, y lo asociacion a una venta
      */
     protected function generar_venta_credito(Request $request, $venta){
-        try {
-            
-            return '';
-
-        } catch (\Exception $e) {
-            return $e;
-        }
+      // Generar x cantidad de cuotas con fecha de vencimiento + 1 mes, dos, tyres y asi sucesivamente
     }
 
     /**
@@ -135,12 +154,13 @@ class VentaController extends AppController
      */
     public function show($id)
     {
-        $venta = Venta::with('ventaDetalle', 'cliente')->find($id);
-        if (!isset($venta)){
-            return response(["data" => NULL ], 404);
-        } 
-
-        return new VentaResource($venta);
+        return Venta::with([
+          'cliente', 
+          'ventaDetalle', 
+          'ventaDetalle.producto',
+          'sucursal',
+          'formaPago'
+        ])->findOrFail($id);
     }
 
   
@@ -157,9 +177,12 @@ class VentaController extends AppController
     {
 
         $request->validate([
-            'generar_comprobante' => 'required|boolean',
             'comprobantetipo_id' => 'required'
         ]);
+
+        
+        $serieFactura = $request->input('serie_factura', NULL);
+        
 
         try {
             DB::beginTransaction();
@@ -172,18 +195,8 @@ class VentaController extends AppController
                 throw new \Exception("Venta no existente o el comprobante ya fue emitido", 1);
             
             // Obtenemos el ultimo nro de factura 
-            $comprobante = ComprobantePorSucursal::where([
-                'comprobantetipo_id' => $request->comprobantetipo_id,
-                'sucursal_id' => $venta->sucursal_id  
-            ])->first();
-
-            if ($comprobante == NULL)
-                throw new \Exception("Comprobante no existe en sucursal", 1);
-                
-            $comprobante->ultimo_nro += 1;
-            $comprobante->save();
-
-            $venta->nro_factura = $comprobante->ultimo_nro;
+            
+            $venta->nro_documento = $comprobante->ultimo_nro;
             $venta->save(); 
 
             DB::commit();
@@ -255,7 +268,6 @@ class VentaController extends AppController
     public function destroy(Request $request, $id)
     {
         $venta = venta::find($id);
-        //$concretado  = $request->input('concretado', 'si');    
 
         if (!isset($venta)) {
             return response([
@@ -268,7 +280,7 @@ class VentaController extends AppController
         $venta->delete();
 
         return [
-            'message' => 'venta eliminada correctamente',
+            'message' => 'Venta eliminada correctamente',
             'data' => $venta,
         ];
     }

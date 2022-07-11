@@ -32,15 +32,12 @@ class ProveedorBasicRequest extends FormRequest
     {   
         if ($request->isMethod('post')){
             return [
-                'nombre' => 'required|string',
-                'telefono' => 'required|string',
-                'nro_documento' => 'required|unique:' . $this->table_name,
-                'tipo_proveedor' => 'required|in:P,E'
+              'nombre' => 'required|string',
+              'nro_documento' => 'required|unique:' . $this->table_name,
             ];
         } else {
             return [
                 'nombre' => 'required|string',
-                'telefono' => 'required|string'
             ];
         }
     }

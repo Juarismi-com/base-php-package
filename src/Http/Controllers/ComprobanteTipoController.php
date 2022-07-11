@@ -12,10 +12,16 @@ class ComprobanteTipoController extends AppController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ComprobanteTipo::select(['id', 'nombre'])
-            ->get();
+      $option = $request->input('option', NULL);
+      
+      if($option == NULL)
+        return ComprobanteTipo::select(['id', 'nombre'])->get();
+      
+      return ComprobanteTipo::select(['id', 'nombre'])
+        ->where('compra', 1)
+        ->get();
     }
 
     /**

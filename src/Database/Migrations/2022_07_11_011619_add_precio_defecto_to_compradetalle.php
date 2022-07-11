@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddPrecioDefectoToComprasTable extends Migration
+class AddPrecioDefectoToCompradetalle extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddPrecioDefectoToComprasTable extends Migration
      */
     public function up()
     {
-        Schema::table('emp_compras', function (Blueprint $table) {
-            $table->integer('precio_defecto')->nullable();
+        Schema::table('emp_compra_detalle', function (Blueprint $table) {
+          $table->integer('precio_defecto')->nullable();
         });
     }
 
@@ -25,7 +25,7 @@ class AddPrecioDefectoToComprasTable extends Migration
      */
     public function down()
     {
-        Schema::table('emp_compras', function (Blueprint $table) {
+        Schema::table('emp_compra_detalle', function (Blueprint $table) {
             //
         });
     }

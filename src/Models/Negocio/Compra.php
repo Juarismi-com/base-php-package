@@ -12,7 +12,6 @@ class Compra extends Model
   protected $table = 'emp_compras';
 	protected $fillable = [
     'nro_comprobante',
-    'serie_factura',
     'fecha_compra',
     'condicion_compra',
     'monto_total',
@@ -25,6 +24,10 @@ class Compra extends Model
     'estado',
     'formapago_id',
     'comprobantetipo_id'
+  ];
+
+  protected $attributes = [
+    'sucursal_id' => 1,
   ];
 
 	/**

@@ -10,6 +10,7 @@ use Juarismi\Base\Models\Negocio\CompraDetalle;
 use Juarismi\Base\Http\Resources\Compra\CompraResource;
 use Juarismi\Base\Http\Resources\Compra\CompraBasicResource;
 use Juarismi\Base\Http\Requests\Compra\CompraRequest;
+use Juarismi\Base\Models\Negocio\Producto;
 
 class CompraController extends AppController
 {
@@ -32,29 +33,36 @@ class CompraController extends AppController
 
         // Pagination
         $rows = $request->input('rows', 20);
-        $compraList = Compra::with(['proveedor']);
+        $compraList = Compra::with([
+          'proveedor',
+          'compraDetalle',
+          'compraDetalle.producto',
+          'sucursal',
+          'formaPago'
+        ]);
 
         if ($q != NULL){
-            $compraList->whereHas('proveedor', function($query) use ($q){
-                    $query->where('nombre', 'like', '%' . $q . '%')
-                        ->orWhere('nro_documento', $q);
-                });
+          $compraList->whereHas('proveedor', function($query) use ($q){
+            $query->where('nombre', 'like', '%' . $q . '%')
+              ->orWhere('nro_documento', $q);
+          });
         }
 
         if ($fechaDesde != NULL &&  $fechaHasta != NULL){
-            $fechaDesde =  date_to_DateString($fechaDesde);
-            $fechaHasta =  date_to_DateString($fechaHasta);
+          $fechaDesde =  date_to_DateString($fechaDesde);
+          $fechaHasta =  date_to_DateString($fechaHasta);
 
-            $compraList = $compraList->whereBetween('fecha_compra',[
-                $fechaDesde, $fechaHasta
-            ]);
+          $compraList = $compraList->whereBetween('fecha_compra', [
+            $fechaDesde, $fechaHasta
+          ]);
         }
         
 
         $compraList = $compraList->orderBy($orderBy, $orderType)
-            ->paginate($rows);
+          ->paginate($rows);
 
-        return CompraBasicResource::collection($compraList);       
+        //return CompraBasicResource::collection($compraList);       
+        return $compraList;
     }
 
 
@@ -69,34 +77,37 @@ class CompraController extends AppController
         $input = $request->all();
         
         try {
-            DB::beginTransaction();
-            $compra = Compra::create($input);
+          DB::beginTransaction();
 
-            // De de la compra
-            $compra_detalle = collect($request->compra_detalle);
-            $compra_detalle->each(function($detalle) use ($compra) {
-              $cantidad = isset($detalle['cantidad']) ?
-                          $detalle['cantidad'] : 1;
+          $compra = Compra::create($input);
+          
+          // De de la compra
+          $compra_detalle = collect($request->compra_detalle);
+          $compra_detalle->each(function($detalle) use ($compra) {
+            $cantidad = isset($detalle['cantidad']) ?
+                        $detalle['cantidad'] : 1;
 
-              CompraDetalle::create([
-                  'producto_id' => $detalle['producto_id'],
-                  'precio' => $detalle['precio'],
-                  
-                  'compra_id' => $compra->id,
-                  'cantidad' => $cantidad,
-                  'precio_x_cantidad' => $cantidad * $detalle['precio']
-              ]);
-            });
-        
-            $compra->monto_total = $compra->compraDetalle
-                ->sum('precio_x_cantidad');
+            $producto = Producto::findOrFail($detalle['producto_id']);
 
-            DB::commit();
+            CompraDetalle::create([
+              'producto_id' => $detalle['producto_id'],
+              'precio' => $detalle['precio'],
+              'precio_defecto' => $producto->precio_compra,
+              'compra_id' => $compra->id,
+              'cantidad' => $cantidad,
+              'precio_x_cantidad' => $cantidad * $detalle['precio']
+            ]);
+          });
+      
+          $compra->monto_total = $compra->compraDetalle
+              ->sum('precio_x_cantidad');
 
-            return [
-                'message' => "Se genero la compra correctamente",
-                'data' => $compra
-            ];   
+          DB::commit();
+
+          return [
+            'message' => "Se genero la compra correctamente",
+            'data' => $compra
+          ];   
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->serverError($e);
@@ -111,10 +122,15 @@ class CompraController extends AppController
      */
     public function show($id)
     {
-        $compra = Compra::with('compraDetalle', 'proveedor')
-            ->findOrFail($id);
+        $compra = Compra::with([
+          'proveedor',
+          'compraDetalle',
+          'compraDetalle.producto',
+          'sucursal',
+          'formaPago'
+        ])->findOrFail($id);
 
-        return new CompraResource($compra);
+        return $compra;
     }
 
   

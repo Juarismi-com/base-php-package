@@ -20,7 +20,7 @@ class CompraDetalle extends Model
 
 	public function producto(){
 		return $this->hasOne(
-			'App\Models\Negocio\Producto',
+			'Juarismi\Base\Models\Negocio\Producto',
 			'id',
 			'producto_id'
 		);	

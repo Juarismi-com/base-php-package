@@ -7,6 +7,7 @@ use Juarismi\Base\Rules\Producto as ProductoRule;
 use Juarismi\Base\Rules\Proveedor as ProveedorRule;
 use Juarismi\Base\Rules\Sucursal as SucursalRule;
 use Juarismi\Base\Rules\FormaPago as FormaPagoRule;
+use Juarismi\Base\Rules\ComprobanteTipo as ComprobanteTipoRule;
 
 class CompraRequest extends FormRequest
 {
@@ -29,20 +30,21 @@ class CompraRequest extends FormRequest
     public function rules()
     {
         return [
-            'proveedor_id' => [ 
-                'required', 'integer', new ProveedorRule
-            ], 
-            'compra_detalle' => 'required|array',
-            'compra_detalle.*.producto_id' => [
-                'required' , 
-                //'unique:App\Model\Negocio\CompraDetalle,compra_id,producto_id',
-                 new ProductoRule
-            ],
-            'compra_detalle.*.precio' => 'required|integer',
-            'fecha_compra' => 'required',
-            'condicion_compra' => 'required|in:credito,contado',
-            'sucursal_id' => ['required', new SucursalRule ],
-            'formapago_id' => ['required', new FormaPagoRule ]
+          'proveedor_id' => [ 
+              'required', 'integer', new ProveedorRule
+          ], 
+          'compra_detalle' => 'required|array',
+          'compra_detalle.*.producto_id' => [
+              'required' , 
+              //'unique:App\Model\Negocio\CompraDetalle,compra_id,producto_id',
+                new ProductoRule
+          ],
+          'compra_detalle.*.precio' => 'required|integer',
+          'fecha_compra' => 'required',
+          'condicion_compra' => 'required|in:credito,contado',
+          'sucursal_id' => ['required', new SucursalRule ],
+          'formapago_id' => ['required', new FormaPagoRule ],
+          'comprobantetipo_id' => ['required', new ComprobanteTipoRule],
         ];
     }
 

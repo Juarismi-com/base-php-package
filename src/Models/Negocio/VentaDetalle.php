@@ -26,10 +26,10 @@ class VentaDetalle extends Model
 	}
 
 	/**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
+   * The "booted" method of the model.
+   *
+   * @return void
+   */
 	protected static function booted(){}
 
 }

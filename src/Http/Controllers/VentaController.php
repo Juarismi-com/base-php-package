@@ -80,9 +80,8 @@ class VentaController extends AppController
     {
         $input = $request->all();
         $comprobanteTipoId = $request->input('comprobantetipo_id',3); //Ticket
-        $sucursalId = $request->input('sucursal_id',1); //Ticket
+        $sucursalId = $request->input('sucursal_id',1);
 
-        
         
         try {
           DB::beginTransaction();
@@ -129,8 +128,8 @@ class VentaController extends AppController
           DB::commit();
 
           return [
-              'message' => "Se genero la venta correctamente",
-              'data' => $venta
+            'message' => "Se genero la venta correctamente",
+            'data' => $venta
           ];
         } catch (\Exception $e) {
             DB::rollBack();

@@ -9,8 +9,23 @@ class Compra extends Model
 {
 	use SoftDeletes;
 	
-    protected $table = 'emp_compras';
-	protected $guarded = array();
+  protected $table = 'emp_compras';
+	protected $fillable = [
+    'nro_comprobante',
+    'serie_factura',
+    'fecha_compra',
+    'condicion_compra',
+    'monto_total',
+    'impuesto_total',
+    'proveedor_id',
+    'comprador_id',
+    'sucursal_id',
+    'razonsocial_id',
+    'observacion',
+    'estado',
+    'formapago_id',
+    'comprobantetipo_id'
+  ];
 
 	/**
 	 * Asocia un proveedor por defecto

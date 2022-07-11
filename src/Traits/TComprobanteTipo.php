@@ -4,12 +4,16 @@ namespace Juarismi\Base\Traits;
 use Juarismi\Base\Models\Negocio\ComprobantePorSucursal;
 use Juarismi\Base\Models\Common\ComprobanteTipo;
 
+
+
 trait TComprobanteTipo {
 
   /**
    * Retorna el tipo de comprobante (con estado activo) por sucursal
    * @param $comprobanteTipoId 
    * @param $sucursalId
+   * 
+   * @todo verificar si la sucursal existe y es de la empresa en cuestion
    */
   public function getLastComprobanteEmitido(
     $comprobanteTipoId, 

@@ -10,7 +10,6 @@ class Venta extends Model
   use SoftDeletes;
 
   protected $table = 'emp_ventas';
-	protected $guarded = array();
 	protected $fillable = [
     'serie_factura',
     'fecha_venta',

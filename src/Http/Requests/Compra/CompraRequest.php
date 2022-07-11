@@ -1,6 +1,6 @@
 <?php
 
-namespace Juarismi\Base\Http\Requests\Cliente;
+namespace Juarismi\Base\Http\Requests\Compra;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Juarismi\Base\Rules\Producto as ProductoRule;

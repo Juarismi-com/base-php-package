@@ -15,8 +15,7 @@ class CreateTableCompras extends Migration
     {
         Schema::create('emp_compras', function (Blueprint $table) {
             $table->id();
-            $table->integer('nro_factura')->nullable();
-            $table->string('serie_factura' , 10)->nullable();
+            $table->integer('nro_comprobante')->nullable();
 
             $table->dateTime('fecha_compra');
             $table->enum('condicion_compra', ['credito', 'contado'])
@@ -30,6 +29,7 @@ class CreateTableCompras extends Migration
             $table->integer('comprador_id')->nullable();
             $table->integer('sucursal_id')->nullable();
             $table->integer('razonsocial_id')->nullable();
+            $table->integer('comprobantetipo_id')->default(3);
             
             $table->string('observacion')->nullable();
             

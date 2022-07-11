@@ -66,39 +66,26 @@ class CompraController extends AppController
      */
     public function store(CompraRequest $request)
     {
-        $_request = $request->only(
-            'nro_factura',
-            'serie_factura',
-            'fecha_compra',
-            'condicion_compra',
-            'monto_total',
-            'impuesto_total',
-            'proveedor_id',
-            'comprador_id',
-            'sucursal_id',
-            'razonsocial_id',
-            'observacion',
-            'estado',
-            'formapago_id'
-        );
+        $input = $request->all();
         
         try {
             DB::beginTransaction();
-            $compra = Compra::create($_request);
+            $compra = Compra::create($input);
 
+            // De de la compra
             $compra_detalle = collect($request->compra_detalle);
             $compra_detalle->each(function($detalle) use ($compra) {
-                $cantidad = isset($detalle['cantidad']) ?
-                            $detalle['cantidad'] : 1;
+              $cantidad = isset($detalle['cantidad']) ?
+                          $detalle['cantidad'] : 1;
 
-                CompraDetalle::create([
-                    'producto_id' => $detalle['producto_id'],
-                    'precio' => $detalle['precio'],
-                    'compra_id' => $compra->id,
-                    'cantidad' => $cantidad,
-                    'precio_x_cantidad' => $cantidad * $detalle['precio']
-                ]);
-
+              CompraDetalle::create([
+                  'producto_id' => $detalle['producto_id'],
+                  'precio' => $detalle['precio'],
+                  
+                  'compra_id' => $compra->id,
+                  'cantidad' => $cantidad,
+                  'precio_x_cantidad' => $cantidad * $detalle['precio']
+              ]);
             });
         
             $compra->monto_total = $compra->compraDetalle

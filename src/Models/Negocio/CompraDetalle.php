@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Models\Negocio;
+namespace Juarismi\Base\Models\Negocio;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Events\AumentarStockEvent;
 
 class CompraDetalle extends Model
 {
-    protected $table = 'emp_compra_detalle';
+  protected $table = 'emp_compra_detalle';
 	protected $guarded = [];
 
 	public function compra(){

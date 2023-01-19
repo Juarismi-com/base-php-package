@@ -20,8 +20,7 @@
         ]
     },
     "require": {
-        "nesbot/carbon": "^2.41",
-        "juarismi/auth": "v0.1-dev"
+        "nesbot/carbon": "^2.41"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.4"
@@ -32,15 +31,5 @@
                 "Juarismi\\Base\\BaseServiceProvider"
             ]
         }
-    },
-    "repositories": [
-      {
-         "type": "vcs",
-         "url": "https://github.com/Juarismi-com/auth-php-package.git"
-      },
-      {
-         "type": "vcs",
-         "url": "https://github.com/Juarismi-com/base-php-package.git"
-      }
-    ]
+    }
 }

@@ -38,6 +38,10 @@
       {
          "type": "vcs",
          "url": "https://github.com/Juarismi-com/auth-php-package.git"
+      },
+      {
+         "type": "vcs",
+         "url": "https://github.com/Juarismi-com/base-php-package.git"
       }
     ]
 }

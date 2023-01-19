@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Juarismi\Base\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Juarismi\Base\Models\Common\Ciudad;

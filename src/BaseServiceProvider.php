@@ -10,23 +10,19 @@ class BaseServiceProvider extends ServiceProvider
 {
 
 	public function boot(){
+      $this->app->singleton('cors', function ($app) {
+         return new Cors();
+      });
 
-        $this->app->singleton('cors', function ($app) {
-            return new Cors();
-        });
-
-	    $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
-	   	$this->registerRoutes();
+	   $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
+	   $this->registerRoutes();
     }
 
-    public function register(){
-    	
-    }
+    public function register(){}
 
-    protected function registerRoutes(){
-    	Route::group([ 'prefix' => 'api/v1' ], function(){
-    		$this->loadRoutesFrom(__DIR__.'/Routes/api.php', 'jBase');
-    	});
-    }
-
+   protected function registerRoutes(){
+      Route::group([ 'prefix' => 'api/v1' ], function(){
+         $this->loadRoutesFrom(__DIR__.'/Routes/api.php', 'jBase');
+      });
+   }
 }

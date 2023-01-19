@@ -21,6 +21,5 @@ class RolesDefaultSeeder extends Seeder
         Role::create(['name' => 'taller-mecanico']);
         Role::create(['name' => 'odontologo']);
         Role::create(['name' => 'asociacion']);
-        Role::create(['name' => 'secretaria']);
     }
 }

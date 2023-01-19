@@ -21,8 +21,7 @@
     },
     "require": {
         "nesbot/carbon": "^2.41",
-        "tymon/jwt-auth" : "*",
-        "juarismi/auth": "dev-main"
+        "juarismi/auth": "0.1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.4"
